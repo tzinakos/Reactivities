@@ -29,6 +29,14 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddCors(opt => 
+           {
+               opt.AddPolicy("CorsPolicy",policy =>
+               {
+                   policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+               });
+           });
+
             services.AddDbContext<DataContext>(opt =>
             {
                 opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
@@ -38,11 +46,15 @@ namespace API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
             });
+
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -51,15 +63,16 @@ namespace API
             }
 
            // app.UseHttpsRedirection();
-
+            
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseCors("CorsPolicy");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+            
         }
     }
 }
